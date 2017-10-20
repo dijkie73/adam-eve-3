@@ -1,0 +1,433 @@
+﻿<!--
+  NOTES:
+  1. All tokens are represented by '$' sign in the template.
+  2. You can write your code only wherever mentioned.
+  3. All occurrences of existing tokens will be replaced by their appropriate values.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Adam and Eve 3</title>
+    <!-- write your code here -->
+
+
+    <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
+    <script src="adamAndEve3Html.js"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0 auto;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        #canvas {
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin-right: auto;
+            margin-left: auto;
+            margin-top: auto;
+            margin-bottom: auto;
+            z-index: -1;
+            background-color: #000;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            top: 0;
+        }
+
+
+        .white {
+            background-color: #ffffff;
+        }
+
+        .black {
+            background-color: #000000;
+        }
+
+        .original {
+            background-color: #000000;
+        }
+    </style>
+    <body onresize="getDeviceOrientation()" style="background-color:#FFFFFF">
+        <script>
+
+
+
+
+
+            var mobiledevice;
+            var ios = 0;
+            function detectmob() {
+                if (navigator.userAgent.match(/Android/i)
+                    || navigator.userAgent.match(/webOS/i)
+                    || navigator.userAgent.match(/iPhone/i)
+                    || navigator.userAgent.match(/iPad/i)
+                    || navigator.userAgent.match(/iPod/i)
+                    || navigator.userAgent.match(/BlackBerry/i)
+                    || navigator.userAgent.match(/Windows Phone/i)
+                ) {
+                    mobiledevice = 1;
+                }
+                else {
+                    mobiledevice = 0;
+                }
+            }
+
+            function detectmob2() {
+                if (navigator.userAgent.match(/iPhone/i)
+                    || navigator.userAgent.match(/iPad/i)
+                    || navigator.userAgent.match(/iPod/i)
+                ) {
+
+                    ios = 1;
+                }
+                else {
+
+                    ios = 0;
+                }
+            }
+
+            detectmob();
+            detectmob2();
+
+
+            var numbResize = 0;
+            var numbResize2 = 0;
+            var GAME_WIDTH = 720;
+            var GAME_HEIGHT = 720;
+            var scale_window = 1;
+            var scale_stage = 1;
+
+            var canvas, stage, exportRoot;
+            var cislo;
+            var somVmenu = 1;
+            var por;
+            var chosenL = 0;
+            var bgmusic = 0;
+
+            var initR = 0;
+            var out = 0;
+
+            var rotateBG = new createjs.Shape();
+            var resizepoc = 0;
+            var rotateCont = new createjs.Container();
+
+
+            var progressBarUnder = new createjs.Bitmap("images/loading_bar1.png");
+            var progressBar = new createjs.Bitmap("images/loading_bar2.png");
+            var loadingBg = new createjs.Bitmap("images/bg.png");
+            var loadingText = new createjs.Bitmap("images/loading_text.png");
+            var rotateBg = new createjs.Bitmap("images/rotate.jpg");
+            var rotateBg2 = new createjs.Bitmap("images/rotate2.jpg");
+            var maskBar = new createjs.Shape();
+
+            rotateBg.x = -120;
+            rotateBg.y = 0;
+            rotateBg.scaleX = rotateBg.scaleY = 1;
+
+            rotateBg2.x = 150;
+            rotateBg2.y = 250;
+            rotateBg.scaleX = rotateBg.scaleY = 1;
+
+            if (ios == 1) {
+                rotateBg2.x = 50;
+            }
+
+            loadingBg.x = -120;
+            loadingBg.y = 0;
+
+            progressBarUnder.x = 217;
+            progressBarUnder.y = 515;
+
+            progressBar.x = 217;
+            progressBar.y = 515;
+
+            loadingText.x = 266;
+            loadingText.y = 461;
+
+            function gdapiCT() {
+                console.log("rest");
+            }
+            function init() {
+                // --- write your JS code here ---
+
+                if (navigator.userAgent.match(/Android/i)) {
+                    window.scrollTo(0, 1);
+
+                }
+
+                createjs.MotionGuidePlugin.install();
+
+                canvas = document.getElementById("canvas");
+                images = images || {};
+
+                stage = new createjs.Stage(canvas);
+
+
+                stage.addChild(loadingBg);
+                stage.addChild(progressBarUnder);
+                stage.addChild(progressBar);
+                stage.addChild(loadingText);
+
+
+                progressBar.mask = maskBar;
+
+                stage.addChild(maskBar);
+
+                var loader = new createjs.LoadQueue(false);
+                loader.installPlugin(createjs.Sound);
+                loader.addEventListener("fileload", handleFileLoad);
+                loader.addEventListener("progress", handleProgress);
+                loader.addEventListener("complete", parse1);
+                loader.loadFile({ src: "spritesheets/s1.json", type: "spritesheet", id: "s1", }, true);
+                loader.loadManifest(lib.properties.manifest);
+
+
+
+                var badAndroidDevice = navigator.userAgent.indexOf("Android") > -1 && !(navigator.userAgent.indexOf("Chrome") > -1);
+                if (badAndroidDevice && createjs.Touch.isSupported()) {
+                    stage.enableDOMEvents(false);
+                }
+                createjs.Touch.enable(stage);
+                if (navigator.userAgent.match(/Windows Phone/i)) {
+                    //createjs.Touch.disable(stage);
+                    windowsPhone = 1;
+                }
+
+
+                getDeviceOrientation();
+
+                var initialized = false;
+
+                function initGDApi() { // invoke this function to initialize api
+                    console.log("test0");
+                    if (!initialized) { // Api will be initialized once, so preroll is shown once either
+                        console.log("test1");
+                        let settings = {
+                            gameId: "4cf7fe53fde7406fadf9ad84a0b6ac59",
+                            userId: "37C11D41-F58B-4ADB-B746-B202C55EC68C-s1",
+
+
+                            // This function will be called when the ad begins and when your game should be paused. It's required that you mute your game at this point
+                            pauseGame: function () {
+                                console.log("Pause game");
+                            },
+
+                            // This callback is called when the ad is finished, you can resume your game and unmute your audio
+                            resumeGame: function () {
+                                console.log("Resume game");
+                                //exportRoot.pauseF();
+                            },
+
+                            // Called when the gdApi initlialized, will be deprecated soon
+                            onInit: function (data) {
+                                initialized = true;
+                                console.log("Init: ", data);
+                            },
+
+                            // Called when an error appears in the gdApi, will be deprecated soon
+                            onError: function (data) {
+                                console.log("Error: ", data);
+                            }
+
+
+                        };
+                        (function (i, s, o, g, r, a, m) {
+                            i['GameDistribution'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }; i[r].l = 1 * new Date(); a = s.createElement(o); m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
+                        })(window, document, 'script', '//html5.api.gamedistribution.com/libs/gd/api.js', 'gdApi');
+
+                        gdApi(settings);
+                        ///*
+
+                        //*/
+                    }
+
+                }
+
+                initGDApi(); // in order to initialize api
+
+                //gdApi.showBanner();
+                // window.onorientationchange = getDeviceOrientation;
+
+                var supportsOrientationChange = "onorientationchange" in window,
+                    orientationEvent = supportsOrientationChange ? "orientationchange" : "resize";
+
+                window.addEventListener(orientationEvent, function () {
+                    // alert('HOLY ROTATING SCREENS BATMAN:' + window.orientation + " " + screen.width);
+
+                    getDeviceOrientation();
+                }, false);
+                window.addEventListener('scroll', function () {
+                    // Do not scroll when keyboard is visible
+                    if (document.activeElement === document.body && window.scrollY > 0) {
+                        document.body.scrollTop = 0;
+                    }
+                }, true);
+            }
+
+            function handleFileLoad(evt) {
+                if (evt.item.type == "image") { images[evt.item.id] = evt.result; }
+            }
+
+            function handleProgress(event) {
+                maskBar.graphics.beginStroke("").drawRect(217, 515, 284 * event.progress, 36);
+                stage.update();
+            }
+
+            function parse1(evt) {
+                var queue = evt.target;
+                ss["s1"] = queue.getResult("s1");
+                handleComplete();
+            }
+
+            function handleComplete(evt) {
+                stage.removeChild(progressBarUnder, progressBar, maskBar, loadingText, loadingBg);
+                exportRoot = new lib.adamAndEve3Html();
+
+                stage.addChild(exportRoot);
+                stage.update();
+                stage.enableMouseOver();
+
+                createjs.Ticker.setFPS(lib.properties.fps);
+                createjs.Ticker.addEventListener("tick", stage);
+
+                getDeviceOrientation();
+            }
+
+
+            function playSound(id, loop) {
+                return createjs.Sound.play(id, createjs.Sound.INTERRUPT_EARLY, 0, 0, loop);
+            }
+
+            function getDeviceOrientation() {
+
+                var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+                var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+                //alert("document.documentElement.clientWidth" + document.documentElement.clientWidth);
+                //alert("window.innerHeight" + window.innerHeight);
+
+                //console.log(navigator.userAgent);
+                // alert("getDeviceOrientation1 ");
+                if (mobiledevice == 1) {
+
+                    //alert("Cookies.get('tabs')" + Cookies.get('tabs'));
+                    //    alert("getDeviceOrientation 2");
+                    var timer = setInterval(function () {
+                        if ((window.innerHeight < window.innerWidth && navigator.userAgent.match("Mac OS"))
+                            || ((screen.width == 720) && (screen.height == 1280) && window.innerHeight < window.innerWidth && navigator.userAgent.match("Android"))
+                            || ((screen.width != 720) && (screen.height != 1280) && screen.height < screen.width && navigator.userAgent.match("Android"))
+                            || (window.innerHeight < window.innerWidth && navigator.userAgent.match(/BlackBerry/i))
+                            || (window.innerHeight < window.innerWidth && navigator.userAgent.match(/Windows Phone/i))) {
+                            // alert("rotatex0");
+                            //alert("window.innerHeight "+window.innerHeight);
+                            //alert("screen.height "+screen.height)
+
+                            numbResize2 = 0;
+                            canvas.width = 720;
+                            canvas.height = 720;
+                            stage.removeChild(rotateBg);
+                            stage.removeChild(rotateBg2);
+                            clearInterval(timer);
+                            var scaleX = window.innerWidth / canvas.width;
+
+                            if (ios == 0) {
+                                var scaleY = window.innerHeight / 405;
+                            }
+                            else {
+
+                                var scaleY = window.innerHeight / 465;
+                            }
+                            var scaleToFit = Math.min(scaleX, scaleY);
+                            //   alert("window.innerHeightxx "+window.innerHeight);
+                            //  alert("window.innerWidthxx "+window.innerWidth);
+                            stage.rotation = 0;
+                            canvas.style.width = canvas.width * scaleToFit + "px";
+                            canvas.style.height = canvas.height * scaleToFit + "px";
+                            stage.y = -(720 - window.innerHeight / scaleToFit) / 2 + window.pageYOffset / scaleToFit;
+                            stage.x = 0;
+                            numbResize++;
+                            // alert("test");
+                            if (numbResize < 5) {
+                                getDeviceOrientation();
+                            }
+                        } else {
+                            numbResize = 0;
+
+                            //alert("screen.heightt "+screen.height);
+                            stage.addChild(rotateBg);
+                            stage.addChild(rotateBg2);
+                            //alert("rotatex");
+                            clearInterval(timer);
+                            //canvas.width=window.innerWidth;
+                            //canvas.height=window.innerHeight;
+
+                            // stage.y=450;//
+                            //  var scaleX = window.innerWidth/405;
+                            //  var scaleY = window.innerHeight/canvas.height;
+                            //  var scaleToFit = Math.min(scaleX, scaleY);
+                            //  alert("scaleToFit "+scaleToFit);
+                            // stage.rotation = 90;
+
+                            var scaleX = window.innerWidth / canvas.width;
+
+                            if (ios == 0) {
+                                var scaleY = window.innerHeight / 405;
+                            }
+                            else {
+
+                                var scaleY = window.innerHeight / 465;
+                            }
+                            var scaleToFit = Math.min(scaleX, scaleY);
+                            //   alert("window.innerHeightxx "+window.innerHeight);
+                            //  alert("window.innerWidthxx "+window.innerWidth);
+
+                            canvas.style.width = canvas.width * scaleToFit + "px";
+                            canvas.style.height = canvas.height * scaleToFit + "px";
+                            stage.y = -(720 - window.innerHeight / scaleToFit) / 2 + window.pageYOffset / scaleToFit;
+                            stage.x = 0;
+
+                            //canvas.style.width = "1920px";
+                            //canvas.style.height  ="1920px";
+                            //stage.x = canvas.width-(720-window.innerWidth/scaleToFit)/2+window.pageXOffset/scaleToFit;
+                            stage.y = 0;
+                            numbResize2++;
+                            if (numbResize2 < 5) {
+                                getDeviceOrientation();
+                            }
+                        }
+                    }, 400);
+                }
+                else {
+                    var w2 = window.innerWidth;
+                    var h2 = window.innerHeight;
+                    var ow2 = 720; // your stage width
+                    var oh2 = 720; // your stage height
+                    var scaleH = (h2 / oh2);
+                    var posunH = ((w2 - (ow2 * scaleH)) / 2) * (1);
+                    var scale = Math.min(w2 / ow2, h2 / oh2);
+                    canvas.style.width = ow2 * scale + "px";
+                    canvas.style.height = oh2 * scale + "px";
+                    canvas.style.display = 'block';
+                    canvas.style.padding = '0';
+                }
+            }
+
+
+
+
+        </script>
+        <!-- write your code here -->
+
+</head>
+<body onload="init();" style="background-color:#D4D4D4;margin:0px;">
+    <canvas id="canvas" width="720" height="720" style="background-color:#FFFFFF"></canvas>
+
+</body>
+</html>
